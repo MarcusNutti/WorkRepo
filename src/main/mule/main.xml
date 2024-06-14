@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <http:listener-config name="subscricao-atualiza-cotacao-salesforce-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="subscricao-atualiza-cotacao-salesforce-config" api="subscricao-atualiza-cotacao-salesforce.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="subscricao-atualiza-cotacao-salesforce-main" doc:id="6d1246c4-ac04-4769-a215-b95f5dc90533">
+        <http:listener config-ref="subscricao-atualiza-cotacao-salesforce-httpListenerConfig" path="/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="subscricao-atualiza-cotacao-salesforce-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: error.description}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+                <logger level="INFO" doc:name="error" doc:id="7382b9a3-95d2-4798-9270-a638a493dbc2" message="#[payload]" />
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: error.description}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+                <logger level="INFO" doc:name="error" doc:id="68bcfab7-be76-4580-a683-cc64c1be75b5" message="#[payload]" />
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: error.description}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[405]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+                <logger level="INFO" doc:name="error" doc:id="cd809d3d-31d4-48d8-a7c8-c7fb27c05e68" message="#[payload]" />
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: error.description}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[406]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+                <logger level="INFO" doc:name="error" doc:id="332a4b3d-58e6-4d3b-bcc3-3ea117d0c1d8" message="#[payload]" />
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: error.description}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[415]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+                <logger level="INFO" doc:name="error" doc:id="5de972fc-99c6-4899-9d83-4e3f4886cfce" message="#[payload]" />
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: error.description}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[501]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+                <logger level="INFO" doc:name="error" doc:id="2b2dc9eb-0f0d-43f0-a190-e11029723c16" message="#[payload]" />
+            </on-error-propagate>
+            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e78e784e-4145-4d8a-9ca2-6b6a5042dc4f" type="ANY">
+                <ee:transform doc:name="Transform Message" doc:id="8599c210-a8eb-4a7f-82f6-3c2021b1c7ba">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: error.description}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+                <logger level="INFO" doc:name="error" doc:id="a4126642-e4f4-44e9-8a6d-738c3831c5d1" message="#[payload]" />
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="post:\atualizacotacao:application\json:subscricao-atualiza-cotacao-salesforce-config" doc:id="d34bba5a-e80b-4906-9754-e844f06541cb">
+        <async doc:name="Async" doc:id="46096462-0980-4f1f-ade9-21e4b11a0aac">
+            <flow-ref doc:name="processUpdateQuote" doc:id="5c44c234-5c76-4b15-88c9-0bd05e1617e1" name="processUpdateQuote" />
+        </async>
+        <ee:transform doc:name="retorno">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Ok"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+</mule>

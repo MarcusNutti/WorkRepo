@@ -1,0 +1,14 @@
+# conexão Salesforce
+salesforce:
+  consumerKey: "3MVG99H7o8BRmFkUZj2nr6MMNOwu7NCoxk_9ujmKl1SKaduOna75kzOi5JBqtdDVkXVw0k8adkx5LbPej8E9w"
+  password: "123"
+  keyStore: "mulesoft.jks"
+  principal: "cristiano.filho@capgemini.com.bvp.devpaulo"
+  endpoint: "https://test.salesforce.com/services/oauth2/token"
+  alias: "mulesoft"
+  
+# UntilSuccessfull
+untilSuccessfull:
+  salesforce:
+    milleseconds: "20000"
+    maxRetries: "3"

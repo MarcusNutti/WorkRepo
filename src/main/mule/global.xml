@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	<global-property doc:name="Global Property" doc:id="cb311826-359b-48cf-8fb8-19237c9c97d2" name="env" value="prd" />
+	<configuration-properties doc:name="Configuration properties" doc:id="51e38385-faab-4448-a1eb-7270b0734dd9" file="properties/${env}-properties.yaml" />
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="90d284e4-cc1f-4a1d-9aa0-f21c3528cddf" >
+		<salesforce:jwt-connection consumerKey="${salesforce.consumerKey}" keyStore="${salesforce.keyStore}" storePassword="${salesforce.password}" principal="${salesforce.principal}" tokenEndpoint="${salesforce.endpoint}" audienceUrl="https://test.salesforce.com">
+			<salesforce:proxy-configuration host="${proxy.host}" port="${proxy.port}" />
+		</salesforce:jwt-connection>
+	</salesforce:sfdc-config>
+</mule>

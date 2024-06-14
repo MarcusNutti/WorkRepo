@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="implementation-suite.xml" />
+	<munit:test name="processUpdateQuote-test" doc:id="721497db-aec6-4ad5-b2ed-34c39cc8d269" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="bfa29784-52de-4f48-a41d-8f3f4e32f232" >
+				<munit:payload value="#[output application/json  --- readUrl('classpath://processUpdateQuotetest\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json " />
+				<munit:attributes value="#[readUrl('classpath://processUpdateQuotetest\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://processUpdateQuotetest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="QueryAll Quote" doc:id="cd33ce54-252a-4c2b-ac74-6c9014328122" processor="salesforce:query-all">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="a473f889-5b1d-4f5c-89d0-c86e5ee1515a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="quote" value="#[readUrl('classpath://processUpdateQuotetest\set-event_payload_queryallQuote.dwl')]" mediaType="application/java" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Create bvp_Documento__c" doc:id="8e750515-894f-4159-9e31-ef463985f2dc" processor="salesforce:create">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="f21d22b9-9d33-4f17-9028-6a038be8e045" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java  --- readUrl('classpath://processUpdateQuotetest\set-event_payload_CreateBvpDocumento.dwl')]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="status" doc:id="a3f05564-b944-4209-851c-f97ed0f83751" processor="salesforce:query-all">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="f9e78b7b-f019-4ff8-a156-6e01fd96f3a1" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="status" value="#[output application/java --- readUrl('classpath://processUpdateQuotetest\set-event_variable_status.dwl')]" mediaType="application/java" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="update Quote" doc:id="802d175e-6cfd-4365-8e42-cfab4a196101" processor="salesforce:update">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="37f3572d-ba25-4665-be4d-705189592ea3" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java  --- readUrl('classpath://processUpdateQuotetest\set-event_payload_updateQuote.dwl')]" mediaType="application/java" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to processUpdateQuote" doc:id="3fd67518-0a4d-4907-b1ae-53648e1efad0" name="processUpdateQuote"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="194280bd-2fef-469d-a42a-1a0907550a3c" processor="salesforce:update" times="#[1]">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="37f3572d-ba25-4665-be4d-705189592ea3" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="processUpdateQuote-testFailed" doc:id="31fb8dc0-8789-44c2-ac51-f1b16dbb21d2">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="d47b996b-4922-48fc-a938-0bfbc1ab1587" >
+				<munit:payload value="#[output application/json  --- readUrl('classpath://processUpdateQuotetest\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json " />
+				<munit:attributes value="#[readUrl('classpath://processUpdateQuotetest\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://processUpdateQuotetest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="QueryAll Quote" doc:id="780c4ae1-ded1-416b-9092-e3e79c11533a" processor="salesforce:query-all" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="a473f889-5b1d-4f5c-89d0-c86e5ee1515a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="SALESFORCE:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to processUpdateQuote" doc:id="4ab0867c-72b2-48ff-a1d5-452d1629ca8e" name="processUpdateQuote" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="false" doc:id="6a245418-c6b6-48f3-bc32-6c0586582fc9" is="#[MunitTools::equalTo(false)]" expression="#[payload.success]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="main-suiteTest_APIKIT_BAD_REQUEST" doc:id="c388aeb6-6ece-4abd-95fb-fce6424b7f26" description="Test" expectedErrorType="APIKIT:BAD_REQUEST">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="APIKIT:BAD_REQUEST" doc:id="c59cba4b-0ed3-4e5d-b310-7316a895e2eb" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="subscricao-atualiza-cotacao-salesforce-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="subscricao-atualiza-cotacao-salesforce-main" doc:id="45e9c095-6361-4539-becb-281b4f601944" name="subscricao-atualiza-cotacao-salesforce-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="400" doc:id="06164a86-4ff2-42dd-9a5b-6d2ad12ac0ee" actual="#[vars.httpStatus]" expected="#[400]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="main-suiteTest_APIKIT_NOT_FOUND" doc:id="bd55b7da-2628-4780-b97b-775ad657c00f" description="Test" expectedErrorType="APIKIT:NOT_FOUND" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="APIKIT:NOT_FOUND" doc:id="e54681ef-ce1a-4f54-afae-759d4816a92c" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="subscricao-atualiza-cotacao-salesforce-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="subscricao-atualiza-cotacao-salesforce-main" doc:id="fc208f51-63c7-41d9-b82a-cdeeeb2cbec3" name="subscricao-atualiza-cotacao-salesforce-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="404" doc:id="52e6d8cd-699e-47f1-8e66-b24d7a2f4ec1" actual="#[vars.httpStatus]" expected="#[404]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="main-suiteTest_APIKIT_METHOD_NOT_ALLOWED" doc:id="c53402eb-e498-4bf0-a401-8a00bea508f9" description="Test" expectedErrorType="APIKIT:METHOD_NOT_ALLOWED" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="APIKIT:METHOD_NOT_ALLOWED" doc:id="522c7515-614a-4570-a98e-395116d00419" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="subscricao-atualiza-cotacao-salesforce-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:METHOD_NOT_ALLOWED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="subscricao-atualiza-cotacao-salesforce-main" doc:id="fea7d817-0bad-450c-926d-ff50406d8de1" name="subscricao-atualiza-cotacao-salesforce-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="405" doc:id="4e2e6e72-5f04-4b20-9852-60791a82fe4b" actual="#[vars.httpStatus]" expected="#[405]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="main-suiteTest_APIKIT_UNSUPPORTED_MEDIA_TYPE" doc:id="9626c08a-d6a7-4218-a2bc-b4b264350600" description="Test" expectedErrorType="APIKIT:UNSUPPORTED_MEDIA_TYPE" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="APIKIT:UNSUPPORTED_MEDIA_TYPE" doc:id="82c9501b-f1f0-4e03-8bf4-79118d7d7e62" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="subscricao-atualiza-cotacao-salesforce-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:UNSUPPORTED_MEDIA_TYPE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="subscricao-atualiza-cotacao-salesforce-main" doc:id="4d0b329a-7b9c-4045-8011-a5e03f15f83b" name="subscricao-atualiza-cotacao-salesforce-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="415" doc:id="d01d4acb-e32e-49ff-9e25-375edd432099" actual="#[vars.httpStatus]" expected="#[415]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="main-suiteTest_APIKIT_NOT_IMPLEMENTED" doc:id="a06f2216-4640-43dc-940c-47500611f0c5" description="Test" expectedErrorType="APIKIT:NOT_IMPLEMENTED" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="APIKIT:UNSUPPORTED_MEDIA_TYPE" doc:id="82fdeaf4-2f83-495d-b4bb-b3c294e0917c" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="subscricao-atualiza-cotacao-salesforce-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_IMPLEMENTED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="subscricao-atualiza-cotacao-salesforce-main" doc:id="b2967ee2-d79a-4049-960f-6cfc250b0932" name="subscricao-atualiza-cotacao-salesforce-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="501" doc:id="b9913dd1-362d-40a5-8021-c76c54378650" actual="#[vars.httpStatus]" expected="#[501]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="main-suiteTest_ANY" doc:id="56eba072-2b2b-4925-9adf-df26b049eef7" description="Test" expectedErrorType="ANY" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="ANY" doc:id="217049d3-f469-47ad-bcec-5a1691790b2d" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="subscricao-atualiza-cotacao-salesforce-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="ANY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="subscricao-atualiza-cotacao-salesforce-main" doc:id="1a67886b-b172-430c-bc21-afc3d337d20f" name="subscricao-atualiza-cotacao-salesforce-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="400" doc:id="8978b90e-d540-4130-a4e0-becafef95ca4" actual="#[vars.httpStatus]" expected="#[400]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="main-suiteTest_APIKIT_NOT_ACCEPTABLE" doc:id="f8f0fd9b-898d-4b66-a5d3-e07ce491398d" description="Test" expectedErrorType="APIKIT:NOT_ACCEPTABLE" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="APIKIT:UNSUPPORTED_MEDIA_TYPE" doc:id="afb4e803-25a4-4cc4-aed5-74625f1d42ea" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="subscricao-atualiza-cotacao-salesforce-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_ACCEPTABLE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="subscricao-atualiza-cotacao-salesforce-main" doc:id="1420bd93-9b09-4417-8fdb-eacc3158c5f2" name="subscricao-atualiza-cotacao-salesforce-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="406" doc:id="400551ef-627e-4f33-9031-e459c206507b" actual="#[vars.httpStatus]" expected="#[406]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="post:\atualizacotacao-suiteTest" doc:id="a2ce44dc-56fc-4cd6-b255-057ef4bdda5b" >
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Async" doc:id="922eda08-27f9-4f5c-aa2c-9084cbbef146" processor="async">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="46096462-0980-4f1f-ade9-21e4b11a0aac" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="post:\atualizacotacao" doc:id="e47338fa-484b-4d07-a144-ddab4b3616f3" name="post:\atualizacotacao:application\json:subscricao-atualiza-cotacao-salesforce-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Ok" doc:id="d7b7c8bb-2e2e-4a5a-8d6d-68c3fd3d1010" expression="#[payload.message]" is="#[MunitTools::equalTo('Ok')]" />
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

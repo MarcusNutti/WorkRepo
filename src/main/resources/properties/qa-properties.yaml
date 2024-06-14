@@ -1,0 +1,14 @@
+# conexão Salesforce
+salesforce:
+  consumerKey: "3MVG9qaMEyNEoADLMOmN.a.cRufWYY5IZbd0lbKFG6tlYv_L3oo2.uV81fIZblJ4QPcm2nc6DSKQtuK13cX6c"
+  password: "capgemini"
+  keyStore: "mulesoftqa.jks"
+  principal: "integration.user@capgemini.com.sbxqasub"
+  endpoint: "https://test.salesforce.com/services/oauth2/token"
+  alias: "subscricao"
+  
+# UntilSuccessfull
+untilSuccessfull:
+  salesforce:
+    milleseconds: "20000"
+    maxRetries: "3"

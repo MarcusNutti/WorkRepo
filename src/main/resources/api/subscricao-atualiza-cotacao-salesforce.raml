@@ -1,0 +1,59 @@
+#%RAML 1.0
+title: api-subscricao-front-to-salesforce
+mediaType: 
+- application/json
+
+types:
+  quote:
+    additionalProperties: false
+    properties:
+      GUID:
+        type: string
+        required: true
+      cotacao:
+        type: string
+        required: true
+      origem:
+        type: string
+        required: false
+        default: PEGA
+      codigoStatus:
+        type: integer
+        required: true
+      documento:
+        required: false
+        type: array
+        items:
+          type: object
+          properties:
+            id_documento:
+              type: string
+              required: true
+            nome_documento:
+              type: string
+              required: true
+            classe_documental:
+              type: string
+              required: false
+              default: PPSTA_VIDA
+
+/atualizacotacao:
+  post:
+    body:
+      application/json:
+        type: quote
+        example: 
+            "GUID": "BRD-SG-PIS-WORK-SUBM L-1679"
+            "cotacao": "6530/0"
+            "origem": "PEGA"
+            "codigoStatus": 301
+            "documento": [
+              {"id_documento": "ADSF56S123S1F6S", "nome_documento": "Documento ABC", "classe_documental": "PPSTA_VIDA"},
+              {"id_documento": "ADSF56S123S1123", "nome_documento": "Documento XYZ", "classe_documental": "PPSTA_VIDA"}
+            ]        
+    responses:
+      201:
+        body:
+          application/json:
+            example:
+              message: "Ok"

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="processUpdateQuote" doc:id="c7901bc1-7a96-45b4-b69e-403b1194778d" >
+		<logger level="INFO" doc:name="start" doc:id="71c5abaa-8d1f-4f12-8c53-929189160114" message="#[app.name] started"/>
+		<set-variable value="#[payload]" doc:name="data" doc:id="a676be5f-2f95-49e0-9964-f9056e1324ee" variableName="data"/>
+		<until-successful maxRetries="${untilSuccessfull.salesforce.maxRetries}" doc:name="Until Successful" doc:id="7b738e49-19b2-4e03-bf27-65949035c3bb" millisBetweenRetries="${untilSuccessfull.salesforce.milleseconds}">
+			<salesforce:query-all doc:name="var quote" doc:id="a473f889-5b1d-4f5c-89d0-c86e5ee1515a" config-ref="Salesforce_Config" target="quote">
+			<salesforce:salesforce-query><![CDATA[select id, bvp_Quote__r.Id, bvp_Quote__r.Name ,bvp_Quote__r.Status from Case where bvp_Quote__r.bvp_GUID__c = ':guid' and bvp_Quote__r.bvp_plataforma_origem__c = ':origem' and isDeleted = false]]></salesforce:salesforce-query>
+			<salesforce:parameters><![CDATA[#[{
+	"guid": vars.data.GUID,
+	"origem": vars.data.origem default "PEGA"
+}]]]></salesforce:parameters>
+		</salesforce:query-all>
+		</until-successful>
+		<validation:is-not-empty-collection doc:name="Quote exists?" doc:id="3480059b-81cd-463a-85f5-2968c1dea5dc" message="#['Cotação não encontrado no Salesforce atraves do GUID - ' ++ vars.data.GUID]" values="#[vars.quote]"/>
+		<logger level="INFO" doc:name="Inicio" doc:id="70de7cbd-0972-4cf1-96fa-0d349f070765" message="Inicio Atualização da Cotação (Quote) - #[vars.quote[0].bvp_Quote__r.Name] - GUID #[vars.data.GUID]"/>
+		<choice doc:name="Choice" doc:id="276f2fdc-68f6-41ae-98d4-4f2b960141de" >
+			<when expression="#[vars.data.documento?]">
+				<foreach doc:name="For Each" doc:id="b45b1341-3c2f-4467-a11d-0978b7b7cb42" collection="#[vars.data.documento]">
+					<ee:transform doc:name="formart fields for bvp_Documento__c" doc:id="6d58a3ea-2e53-452f-9c4d-9a7ba0e38300">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+[
+	{
+		"bvp_Case__c": vars.quote[0].Id,
+		"bvp_Identificador_Documento_P8__c": payload.id_documento as String,
+		"Name": payload.nome_documento,
+		"bvp_classe_documental__c": payload.classe_documental default "PPSTA_VIDA"
+	}
+]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+					<until-successful maxRetries="${untilSuccessfull.salesforce.maxRetries}" doc:name="Until Successful" doc:id="8ef48c7a-b87f-412a-ab62-4868c00aad5a" millisBetweenRetries="${untilSuccessfull.salesforce.milleseconds}">
+						<salesforce:create doc:name="bvp_Documento__c" doc:id="f21d22b9-9d33-4f17-9028-6a038be8e045" config-ref="Salesforce_Config" type="bvp_Documento__c">
+					</salesforce:create>
+					</until-successful>
+					<validation:is-true doc:name="Success?" doc:id="5bca5a9a-9543-42a5-8033-b254d3577c2b" expression="#[payload.successful]" message='#[payload.items.exception.message joinBy " + "]' />
+				</foreach>
+				<logger level="INFO" doc:name="Document created" doc:id="bf920bd7-c852-4e2a-9fb1-374edd73c286" message="Documento Criado" />
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="e5ad5a0c-9f53-4e0f-8c44-04a6762b553b" message="Sem documento(s) para essa requisição"/>
+			</otherwise>
+		</choice>
+		<until-successful maxRetries="${untilSuccessfull.salesforce.maxRetries}" doc:name="Until Successful" doc:id="a6390940-abdf-4477-9e26-f2713d0ae97e" millisBetweenRetries="${untilSuccessfull.salesforce.milleseconds}">
+			<salesforce:query-all doc:name="var status" doc:id="f9e78b7b-f019-4ff8-a156-6e01fd96f3a1" config-ref="Salesforce_Config" target="status">
+			<salesforce:salesforce-query><![CDATA[select id, bvp_codigo_externo__c, bvp_plataforma_externa__c, bvp_codigo_externo2__c from bvp_tabela_status_integracao__mdt where bvp_plataforma_externa__c = ':origem' and bvp_codigo_externo2__c  = ':codigoStatus']]></salesforce:salesforce-query>
+			<salesforce:parameters><![CDATA[#[{
+	"origem": vars.data.origem default "PEGA",
+	"codigoStatus": vars.data.codigoStatus
+}]]]></salesforce:parameters>
+		</salesforce:query-all>
+		</until-successful>
+		<validation:is-not-empty-collection doc:name="Is not empty var Status" doc:id="656f1ad9-82bf-4fc5-aad6-9dafdabb70df" values="#[vars.status]" message="Origem ou Código Status não encontrado no Salesforce"/>
+		<until-successful maxRetries="${untilSuccessfull.salesforce.maxRetries}" doc:name="Until Successful" doc:id="6e2dde9c-00c5-4b99-9cf8-f42f99154989" millisBetweenRetries="${untilSuccessfull.salesforce.milleseconds}">
+			<salesforce:update doc:name="Quote" doc:id="37f3572d-ba25-4665-be4d-705189592ea3" config-ref="Salesforce_Config" type="Quote">
+					<salesforce:records><![CDATA[#[[
+	{
+	    "Id": vars.quote[0].bvp_Quote__r.Id,
+	    "Status": vars.status[0].bvp_codigo_externo__c,
+	    "bvp_nao_envia_status__c" : true
+	}
+]]]]></salesforce:records>
+				</salesforce:update>
+			<validation:is-true doc:name="Success?" doc:id="def29575-37d5-43fe-9441-ad662ba99875" expression="#[payload.successful]" message='#[payload.items.exception.message joinBy " + "]' />
+		</until-successful>
+		<choice doc:name="Choice" doc:id="79c57204-8229-4468-b14f-6a7eb802b5a9" >
+			<when expression='#[vars.quote[0].bvp_Quote__r.Status == "Recusa Automatica" or vars.quote[0].bvp_Quote__r.Status == "Recusa Manual"]'>
+				<until-successful maxRetries="${untilSuccessfull.salesforce.maxRetries}" doc:name="Until Successful" doc:id="728256cc-abb3-4609-a1ef-179a93d2f616" millisBetweenRetries="${untilSuccessfull.salesforce.milleseconds}">
+					<salesforce:query-all doc:name="Query all" doc:id="5bde6a8a-1558-4950-bf01-f440e959d344" config-ref="Salesforce_Config">
+					<salesforce:salesforce-query><![CDATA[SELECT Id, Name, Type FROM Group where type = 'Queue' and Name = 'FILA ARTEC']]></salesforce:salesforce-query>
+				</salesforce:query-all>
+					<salesforce:update doc:name="Case" doc:id="508c3fc5-fa08-4aa8-a815-3a5b43075065" config-ref="Salesforce_Config" type="Case">
+					<salesforce:records><![CDATA[#[[{
+	"Id": vars.quote[0].Id,
+	"IsStopped": false,
+	"Status": "New",
+	"OwnerId": payload[0].Id,
+	"bvp_filas__c": "ARTEC",
+	"bvp_filas_status__c ": "EM ANÁLISE",
+	"bvp_Motivo_Recusa__c ": " ",
+	"bvp_SLA_estourado__c" : false
+	
+	
+}]]]]></salesforce:records>
+				</salesforce:update>
+					<validation:is-true doc:name="Success?" doc:id="3699392b-86e2-4194-aad4-2c84c3cc7808" expression="#[payload.successful]" message='#[payload.items.exception.message joinBy " + "]' />
+				</until-successful>
+			</when>
+		</choice>
+		<logger level="INFO" doc:name="Quote updated" doc:id="a1b5658f-0676-4361-bd2b-4bf51b2dad7e" message='Cotação (Quote) #[vars.quote[0].bvp_Quote__r.Name] - Atualizado' />
+		<logger level="INFO" doc:name="finished" doc:id="4cdc1380-911d-4947-981a-8d304ea211aa" message="#[app.name] finished" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="657237a0-de15-4e5f-aaca-fd7467b509e9" type="ANY" >
+				<ee:transform doc:name="Transform Message" doc:id="cd89a675-4908-49a9-97e2-65b552ad2db8" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{    
+	success: false,
+    cotacao: vars.data.cotacao,
+	message: error.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="error" doc:id="b7e61bb5-908c-49bf-ba1c-f7b1b9140b3e" message="#[payload]" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>

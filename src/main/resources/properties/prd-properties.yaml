@@ -1,0 +1,22 @@
+# conexão Salesforce
+salesforce:
+  consumerKey: ""
+  password: ""
+  keyStore: ""
+  principal: ""
+  endpoint: ""
+   
+# UntilSuccessfull
+untilSuccessfull:
+  salesforce:
+    milleseconds: "20000"
+    maxRetries: "3"
+    
+# listener
+http:
+  port: "8082"
+      
+proxy:
+  host: ""
+  port: "80"  
+      
